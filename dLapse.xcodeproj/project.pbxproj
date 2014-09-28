@@ -14,6 +14,8 @@
 		3B68925A19D761AC0072AF13 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3B68925919D761AC0072AF13 /* Images.xcassets */; };
 		3B68925D19D761AC0072AF13 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3B68925B19D761AC0072AF13 /* LaunchScreen.xib */; };
 		3B68926919D761AC0072AF13 /* dLapseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B68926819D761AC0072AF13 /* dLapseTests.m */; };
+		3B68927319D762A20072AF13 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B68927219D762A20072AF13 /* AVFoundation.framework */; };
+		3B68927519D798A00072AF13 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B68927419D798A00072AF13 /* AssetsLibrary.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +42,8 @@
 		3B68926219D761AC0072AF13 /* dLapseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = dLapseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B68926719D761AC0072AF13 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3B68926819D761AC0072AF13 /* dLapseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = dLapseTests.m; sourceTree = "<group>"; };
+		3B68927219D762A20072AF13 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		3B68927419D798A00072AF13 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +51,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3B68927519D798A00072AF13 /* AssetsLibrary.framework in Frameworks */,
+				3B68927319D762A20072AF13 /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,6 +102,8 @@
 		3B68924C19D761AC0072AF13 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				3B68927419D798A00072AF13 /* AssetsLibrary.framework */,
+				3B68927219D762A20072AF13 /* AVFoundation.framework */,
 				3B68924D19D761AC0072AF13 /* Info.plist */,
 				3B68924E19D761AC0072AF13 /* main.m */,
 			);
@@ -343,6 +351,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = dLapse/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -353,6 +362,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = dLapse/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

@@ -7,9 +7,21 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <AVFoundation/AVFoundation.h>
+#import <AssetsLibrary/AssetsLibrary.h>
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <AVCaptureFileOutputRecordingDelegate>{
+    UIImageView * imageView;
+    UIButton * startStopButton;
+}
 
+@property (nonatomic) NSTimer * ticker;
+
+@property (nonatomic) dispatch_queue_t sessionQueue;
+@property (nonatomic) AVCaptureSession *session;
+@property (nonatomic) AVCaptureVideoPreviewLayer *previewLayer;
+@property (nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
+@property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
 
 @end
 
