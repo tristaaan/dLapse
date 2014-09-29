@@ -28,6 +28,25 @@
     startStopButton.frame = CGRectMake(0, 200, 90, 80);
     [self.view addSubview:startStopButton];
     
+    stepper = [[UIStepper alloc] init];
+    [stepper setMinimumValue:0.0];
+    [stepper setMaximumValue:300.0];
+    [stepper setWraps:YES];
+    [stepper setValue:5.0];
+    [stepper setStepValue:1.0];
+    stepper.frame = CGRectMake(100, 220, 50, 20);
+    [stepper addTarget:self
+                action:@selector(updateFrameRateOut:)
+      forControlEvents:UIControlEventValueChanged];
+    [self.view addSubview:stepper];
+    
+    frameCaptureRateOut = [[UILabel alloc] init];
+    [frameCaptureRateOut setTextAlignment:NSTextAlignmentCenter];
+    [frameCaptureRateOut setTextColor:[UIColor blackColor]];
+    [frameCaptureRateOut setText:[NSString stringWithFormat:@"%d seconds", (int)stepper.value]];
+    frameCaptureRateOut.frame = CGRectMake(100, 200, 100, 20);
+    [self.view addSubview:frameCaptureRateOut];
+    
     //Camera-Initializing
     dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
     [self setSessionQueue:sessionQueue];
@@ -180,7 +199,14 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             {
                 NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
                 UIImage *image = [[UIImage alloc] initWithData:imageData];
-                [[[ALAssetsLibrary alloc] init] writeImageToSavedPhotosAlbum:[image CGImage] orientation:(ALAssetOrientation)[image imageOrientation] completionBlock:nil];
+                //[[[ALAssetsLibrary alloc] init] writeImageToSavedPhotosAlbum:[image CGImage] orientation:(ALAssetOrientation)[image imageOrientation] completionBlock:nil];
+                
+                NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                NSString * basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+                
+                NSData * binaryImageData = UIImagePNGRepresentation(image);
+                
+                [binaryImageData writeToFile:[basePath stringByAppendingPathComponent:[self timeStampWithExtension:@".png"]] atomically:YES];
             }
         }];
     });
@@ -188,10 +214,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 # pragma mark Start/Stop Lapse
 -(void)startLapse: (id)sender{
-    NSLog(@"Ticker started");
-    int updateValue = 3;
     //self.session.sessionPreset = AVCaptureSessionPresetHigh;
-    self.ticker = [NSTimer scheduledTimerWithTimeInterval:updateValue target:self
+    self.ticker = [NSTimer scheduledTimerWithTimeInterval:stepper.value target:self
                                             selector:@selector(snapStillImage)
                                             userInfo:nil repeats:YES];
 
@@ -199,7 +223,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 }
 
 -(void)stopLapse: (id)sender{
-    NSLog(@"Ticker stopped");
+    //NSLog(@"Ticker stopped");
     [self.ticker invalidate];
     self.ticker = nil;
     //self.session.sessionPreset = AVCaptureSessionPresetLow;
@@ -223,7 +247,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 # pragma mark View Orientation
 // Disable autorotation of the interface when recording is in progress.
 - (BOOL)shouldAutorotate{
-    return [[[startStopButton titleLabel] text] isEqualToString:@"Stop"];
+    return [[[startStopButton titleLabel] text] isEqualToString:@"Start"];
 }
 
 - (NSUInteger)supportedInterfaceOrientations{
@@ -232,6 +256,30 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration{
     [[[self previewLayer] connection] setVideoOrientation:(AVCaptureVideoOrientation) toInterfaceOrientation];
+}
+
+# pragma mark Other
+
+- (NSString *) timeStampWithExtension:(NSString*) ext{
+    return [NSString stringWithFormat:@"%d%@", (int)[[NSDate date] timeIntervalSince1970], ext];
+}
+
+- (void) updateFrameRateOut: (id) sender{
+    [frameCaptureRateOut setText:[NSString stringWithFormat:@"%d seconds", (int)stepper.value]];
+}
+
+-(void)createDirectory:(NSString *)directoryName atFilePath:(NSString *)filePath
+{
+    NSString *filePathAndDirectory = [filePath stringByAppendingPathComponent:directoryName];
+    NSError *error;
+    
+    if (![[NSFileManager defaultManager] createDirectoryAtPath:filePathAndDirectory
+                                   withIntermediateDirectories:NO
+                                                    attributes:nil
+                                                         error:&error])
+    {
+        NSLog(@"Create directory error: %@", error);
+    }
 }
 
 @end

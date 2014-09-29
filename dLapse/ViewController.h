@@ -13,6 +13,8 @@
 @interface ViewController : UIViewController <AVCaptureFileOutputRecordingDelegate>{
     UIImageView * imageView;
     UIButton * startStopButton;
+    UILabel * frameCaptureRateOut;
+    UIStepper * stepper;
 }
 
 @property (nonatomic) NSTimer * ticker;
