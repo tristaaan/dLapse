@@ -15,6 +15,8 @@
     UIButton * startStopButton;
     UILabel * frameCaptureRateOut;
     UIStepper * stepper;
+    
+    NSString * cwd;
 }
 
 @property (nonatomic) NSTimer * ticker;

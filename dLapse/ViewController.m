@@ -199,14 +199,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             {
                 NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
                 UIImage *image = [[UIImage alloc] initWithData:imageData];
+                //save to camera-roll
                 //[[[ALAssetsLibrary alloc] init] writeImageToSavedPhotosAlbum:[image CGImage] orientation:(ALAssetOrientation)[image imageOrientation] completionBlock:nil];
                 
-                NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-                NSString * basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
-                
+                NSLog(@"%@", cwd);
                 NSData * binaryImageData = UIImagePNGRepresentation(image);
-                
-                [binaryImageData writeToFile:[basePath stringByAppendingPathComponent:[self timeStampWithExtension:@".png"]] atomically:YES];
+                [binaryImageData writeToFile:[cwd stringByAppendingPathComponent:[self timeStampWithExtension:@".png"]] atomically:YES];
             }
         }];
     });
@@ -218,7 +216,16 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     self.ticker = [NSTimer scheduledTimerWithTimeInterval:stepper.value target:self
                                             selector:@selector(snapStillImage)
                                             userInfo:nil repeats:YES];
-
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
+    
+    cwd = [NSString stringWithFormat:@"%@/%@", [self baseDirectoryPath], [self timeStampForDirectory]];
+    NSError * error;
+    BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:cwd withIntermediateDirectories:YES attributes:nil error:&error];
+    if (!success) {
+        NSLog(@"Error creating data path: %@", [error localizedDescription]);
+    }
+    
+    stepper.enabled = NO;
     [self swapButtonBinding: YES];
 }
 
@@ -227,7 +234,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self.ticker invalidate];
     self.ticker = nil;
     //self.session.sessionPreset = AVCaptureSessionPresetLow;
-
+    [UIApplication sharedApplication].idleTimerDisabled = NO;
+    stepper.enabled = YES;
     [self swapButtonBinding: NO];
 }
 
@@ -260,6 +268,20 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 # pragma mark Other
 
+-(NSString *) baseDirectoryPath{
+    NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString * basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+    return basePath;
+}
+
+-(NSString *) timeStampForDirectory{
+    NSDateFormatter * fmtr = [[NSDateFormatter alloc] init];
+    [fmtr setDateFormat:@"yyyy-mm-dd_hh:mm:ss"];
+    NSString * ret  = [[fmtr stringFromDate:[NSDate date]] stringByReplacingOccurrencesOfString:@" " withString:@"-"];
+    ret = [ret stringByReplacingOccurrencesOfString:@"." withString:@""];
+    return [NSString stringWithFormat:@"lapse-at-%@", ret];
+}
+
 - (NSString *) timeStampWithExtension:(NSString*) ext{
     return [NSString stringWithFormat:@"%d%@", (int)[[NSDate date] timeIntervalSince1970], ext];
 }
@@ -268,18 +290,20 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [frameCaptureRateOut setText:[NSString stringWithFormat:@"%d seconds", (int)stepper.value]];
 }
 
--(void)createDirectory:(NSString *)directoryName atFilePath:(NSString *)filePath
+-(NSString *)createDirectory:(NSString *)directoryName atFilePath:(NSString *)filePath
 {
     NSString *filePathAndDirectory = [filePath stringByAppendingPathComponent:directoryName];
     NSError *error;
     
-    if (![[NSFileManager defaultManager] createDirectoryAtPath:filePathAndDirectory
-                                   withIntermediateDirectories:NO
-                                                    attributes:nil
-                                                         error:&error])
+    if (![[NSFileManager defaultManager] createDirectoryAtURL:[NSURL URLWithString:filePathAndDirectory]
+                                  withIntermediateDirectories:NO
+                                                   attributes:nil
+                                                        error:&error])
     {
         NSLog(@"Create directory error: %@", error);
     }
+    
+    return filePathAndDirectory;
 }
 
 @end
