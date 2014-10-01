@@ -47,6 +47,15 @@
     frameCaptureRateOut.frame = CGRectMake(100, 200, 100, 20);
     [self.view addSubview:frameCaptureRateOut];
     
+    capturedFrames = [[UILabel alloc] init];
+    [capturedFrames setTextAlignment:NSTextAlignmentCenter];
+    [capturedFrames setTextColor:[UIColor blackColor]];
+    [capturedFrames setText:@""];
+    [capturedFrames setLineBreakMode:NSLineBreakByWordWrapping];
+    [capturedFrames setNumberOfLines:2];
+    capturedFrames.frame = CGRectMake(200, 200, 100, 40);
+    [self.view addSubview:capturedFrames];
+    
     //Camera-Initializing
     dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
     [self setSessionQueue:sessionQueue];
@@ -197,12 +206,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             
             if (imageDataSampleBuffer)
             {
+                [self updateFrameCount];
                 NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
                 UIImage *image = [[UIImage alloc] initWithData:imageData];
                 //save to camera-roll
                 //[[[ALAssetsLibrary alloc] init] writeImageToSavedPhotosAlbum:[image CGImage] orientation:(ALAssetOrientation)[image imageOrientation] completionBlock:nil];
                 
-                NSLog(@"%@", cwd);
                 NSData * binaryImageData = UIImagePNGRepresentation(image);
                 [binaryImageData writeToFile:[cwd stringByAppendingPathComponent:[self timeStampWithExtension:@".png"]] atomically:YES];
             }
@@ -225,6 +234,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         NSLog(@"Error creating data path: %@", [error localizedDescription]);
     }
     
+    [capturedFrames setText:@"0"];
     stepper.enabled = NO;
     [self swapButtonBinding: YES];
 }
@@ -266,7 +276,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [[[self previewLayer] connection] setVideoOrientation:(AVCaptureVideoOrientation) toInterfaceOrientation];
 }
 
-# pragma mark Other
+# pragma mark directory methods
 
 -(NSString *) baseDirectoryPath{
     NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -276,7 +286,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 -(NSString *) timeStampForDirectory{
     NSDateFormatter * fmtr = [[NSDateFormatter alloc] init];
-    [fmtr setDateFormat:@"yyyy-mm-dd_hh:mm:ss"];
+    [fmtr setDateFormat:@"yyyy-mm-dd_hh-mm-ss"];
     NSString * ret  = [[fmtr stringFromDate:[NSDate date]] stringByReplacingOccurrencesOfString:@" " withString:@"-"];
     ret = [ret stringByReplacingOccurrencesOfString:@"." withString:@""];
     return [NSString stringWithFormat:@"lapse-at-%@", ret];
@@ -286,24 +296,16 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     return [NSString stringWithFormat:@"%d%@", (int)[[NSDate date] timeIntervalSince1970], ext];
 }
 
+
+# pragma mark UI methods
+
 - (void) updateFrameRateOut: (id) sender{
     [frameCaptureRateOut setText:[NSString stringWithFormat:@"%d seconds", (int)stepper.value]];
 }
 
--(NSString *)createDirectory:(NSString *)directoryName atFilePath:(NSString *)filePath
-{
-    NSString *filePathAndDirectory = [filePath stringByAppendingPathComponent:directoryName];
-    NSError *error;
-    
-    if (![[NSFileManager defaultManager] createDirectoryAtURL:[NSURL URLWithString:filePathAndDirectory]
-                                  withIntermediateDirectories:NO
-                                                   attributes:nil
-                                                        error:&error])
-    {
-        NSLog(@"Create directory error: %@", error);
-    }
-    
-    return filePathAndDirectory;
+- (void) updateFrameCount{
+    NSArray * strArray = [[capturedFrames text] componentsSeparatedByString:@" "];
+    [capturedFrames setText:[NSString stringWithFormat:@"%d frames captured", [[strArray objectAtIndex: 0] intValue]+1 ]];
 }
 
 @end

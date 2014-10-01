@@ -13,7 +13,7 @@
 @interface ViewController : UIViewController <AVCaptureFileOutputRecordingDelegate>{
     UIImageView * imageView;
     UIButton * startStopButton;
-    UILabel * frameCaptureRateOut;
+    UILabel * frameCaptureRateOut, *capturedFrames;
     UIStepper * stepper;
     
     NSString * cwd;
