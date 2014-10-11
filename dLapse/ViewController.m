@@ -286,10 +286,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 -(NSString *) timeStampForDirectory{
     NSDateFormatter * fmtr = [[NSDateFormatter alloc] init];
-    [fmtr setDateFormat:@"yyyy-mm-dd_hh-mm-ss"];
+        [fmtr setDateFormat:@"yyyy-MM-dd_HH-mm-ss"];
     NSString * ret  = [[fmtr stringFromDate:[NSDate date]] stringByReplacingOccurrencesOfString:@" " withString:@"-"];
     ret = [ret stringByReplacingOccurrencesOfString:@"." withString:@""];
-    return [NSString stringWithFormat:@"lapse-at-%@", ret];
+    return [NSString stringWithFormat:@"%@", ret];
 }
 
 - (NSString *) timeStampWithExtension:(NSString*) ext{
