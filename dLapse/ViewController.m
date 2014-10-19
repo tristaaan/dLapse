@@ -32,20 +32,20 @@
     [frameCaptureRateOut setTextAlignment:NSTextAlignmentCenter];
     [frameCaptureRateOut setBaselineAdjustment:UIBaselineAdjustmentNone];
     [frameCaptureRateOut setTextColor:[UIColor blackColor]];
-    [frameCaptureRateOut setText:[NSString stringWithFormat:@"%d seconds", (int)stepper.value]];
     frameCaptureRateOut.frame = CGRectMake(100, 190, 100, 20);
     [self.view addSubview:frameCaptureRateOut];
     
     stepper = [[UIStepper alloc] init];
-    [stepper setMinimumValue:0.0];
+    [stepper setMinimumValue:1.0];
     [stepper setMaximumValue:300.0];
     [stepper setWraps:YES];
     [stepper setValue:5.0];
     [stepper setStepValue:1.0];
-    stepper.frame = CGRectMake(100, 210, 50, 20);
     [stepper addTarget:self
                 action:@selector(updateFrameRateOut:)
       forControlEvents:UIControlEventValueChanged];
+    [frameCaptureRateOut setText:[NSString stringWithFormat:@"%d seconds", (int)stepper.value]];
+    stepper.frame = CGRectMake(100, 210, 50, 20);
     [self.view addSubview:stepper];
     
     capturedFrames = [[UILabel alloc] init];
