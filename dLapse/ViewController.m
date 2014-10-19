@@ -25,8 +25,16 @@
     [startStopButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     [startStopButton addTarget:self action:@selector(startLapse:) forControlEvents:UIControlEventTouchUpInside];
-    startStopButton.frame = CGRectMake(0, 200, 90, 80);
+    startStopButton.frame = CGRectMake(0, 190, 90, 50);
     [self.view addSubview:startStopButton];
+    
+    frameCaptureRateOut = [[UILabel alloc] init];
+    [frameCaptureRateOut setTextAlignment:NSTextAlignmentCenter];
+    [frameCaptureRateOut setBaselineAdjustment:UIBaselineAdjustmentNone];
+    [frameCaptureRateOut setTextColor:[UIColor blackColor]];
+    [frameCaptureRateOut setText:[NSString stringWithFormat:@"%d seconds", (int)stepper.value]];
+    frameCaptureRateOut.frame = CGRectMake(100, 190, 100, 20);
+    [self.view addSubview:frameCaptureRateOut];
     
     stepper = [[UIStepper alloc] init];
     [stepper setMinimumValue:0.0];
@@ -34,18 +42,11 @@
     [stepper setWraps:YES];
     [stepper setValue:5.0];
     [stepper setStepValue:1.0];
-    stepper.frame = CGRectMake(100, 220, 50, 20);
+    stepper.frame = CGRectMake(100, 210, 50, 20);
     [stepper addTarget:self
                 action:@selector(updateFrameRateOut:)
       forControlEvents:UIControlEventValueChanged];
     [self.view addSubview:stepper];
-    
-    frameCaptureRateOut = [[UILabel alloc] init];
-    [frameCaptureRateOut setTextAlignment:NSTextAlignmentCenter];
-    [frameCaptureRateOut setTextColor:[UIColor blackColor]];
-    [frameCaptureRateOut setText:[NSString stringWithFormat:@"%d seconds", (int)stepper.value]];
-    frameCaptureRateOut.frame = CGRectMake(100, 200, 100, 20);
-    [self.view addSubview:frameCaptureRateOut];
     
     capturedFrames = [[UILabel alloc] init];
     [capturedFrames setTextAlignment:NSTextAlignmentCenter];
@@ -55,6 +56,17 @@
     [capturedFrames setNumberOfLines:2];
     capturedFrames.frame = CGRectMake(200, 200, 100, 40);
     [self.view addSubview:capturedFrames];
+    
+    brightnessSlider = [[UISlider alloc] init];
+    brightnessSlider.minimumValue = 0.0f;
+    brightnessSlider.maximumValue = 1.0f;
+    [brightnessSlider setValue:[[UIScreen mainScreen] brightness] animated: NO];
+    [brightnessSlider setContinuous:YES];
+    [brightnessSlider addTarget:self
+                      action:@selector(changeBrightness)
+            forControlEvents:UIControlEventValueChanged];
+    brightnessSlider.frame = CGRectMake(5, 250, 180, 20);
+    [self.view addSubview:brightnessSlider];
     
     //Camera-Initializing
     dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
@@ -234,6 +246,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         NSLog(@"Error creating data path: %@", [error localizedDescription]);
     }
     
+    [brightnessSlider setValue:0.0 animated:NO];
+    [self changeBrightness];
+    
     [capturedFrames setText:@"0"];
     stepper.enabled = NO;
     [self swapButtonBinding: YES];
@@ -244,6 +259,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self.ticker invalidate];
     self.ticker = nil;
     //self.session.sessionPreset = AVCaptureSessionPresetLow;
+    [brightnessSlider setValue:0.8 animated:NO];
+    [self changeBrightness];
     [UIApplication sharedApplication].idleTimerDisabled = NO;
     stepper.enabled = YES;
     [self swapButtonBinding: NO];
@@ -299,13 +316,17 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 # pragma mark UI methods
 
-- (void) updateFrameRateOut: (id) sender{
+-(void) updateFrameRateOut: (id) sender{
     [frameCaptureRateOut setText:[NSString stringWithFormat:@"%d seconds", (int)stepper.value]];
 }
 
-- (void) updateFrameCount{
+-(void) updateFrameCount{
     NSArray * strArray = [[capturedFrames text] componentsSeparatedByString:@" "];
     [capturedFrames setText:[NSString stringWithFormat:@"%d frames captured", [[strArray objectAtIndex: 0] intValue]+1 ]];
+}
+
+-(void) changeBrightness{
+    [[UIScreen mainScreen] setBrightness:[brightnessSlider value]];
 }
 
 @end

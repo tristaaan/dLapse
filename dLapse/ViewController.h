@@ -15,6 +15,7 @@
     UIButton * startStopButton;
     UILabel * frameCaptureRateOut, *capturedFrames;
     UIStepper * stepper;
+    UISlider * brightnessSlider;
     
     NSString * cwd;
 }
