@@ -327,6 +327,11 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 -(void) changeBrightness{
     [[UIScreen mainScreen] setBrightness:[brightnessSlider value]];
+    /* From docs: 
+     Brightness changes made by an app remain in effect only while the app is active. 
+     The system restores the user-supplied brightness setting at 
+     appropriate times when your app is not in the foreground.
+     */
 }
 
 @end
